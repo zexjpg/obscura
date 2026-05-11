@@ -43,9 +43,13 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: cargo install cross
 
+      - name: Add linix toolchain
+        if: ($matrix.os == 'macos-latest') && ($matrix.target == 'aarch64-unknown-linux-gnu')
+        run: rustup target add --force-non-host aarch64-unknown-linux-gnu
+
       - name: Build
         run: |
-          if [ "${{ matrix.os }}" == 'macos-latest' ] && [ "${{ matrix.target }}" == 'aarch64-unknown-linux-gnu' ]; then
+          if [ "${{ matrix.os }}" == "macos-latest" ] && [ "${{ matrix.target }}" == "aarch64-unknown-linux-gnu" ];  then
             cross build --release --target ${{ matrix.target }}
           else
             cargo build --release --target ${{ matrix.target }}
@@ -71,7 +75,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../${{ matrix.name }}.zip obscura.exe obscura-worker.exe || 7z a ../../../${{ matrix.name }}.zip obscura.exe
+          7z a ../../..${{ matrix.name }}.zip obscura.exe obscura-worker.exe || 7z a ../../../${{ matrix.name }}.zip obscura.exe
           cd ../../..
 
       - name: Upload
