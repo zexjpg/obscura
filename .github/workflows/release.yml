@@ -18,8 +18,9 @@ jobs:
             os: ubuntu-22.04
             name: obscura-x86_64-linux
           - target: aarch64-unknown-linux-gnu
-            os: macos-latest
+            os: ubuntu-latest
             name: obscura-aarch64-linux
+            needs_cross: true
           - target: aarch64-apple-darwin
             os: macos-latest
             name: obscura-aarch64-macos
@@ -40,16 +41,12 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Install cross
-        if: matrix.os == 'macos-latest'
+        if: matrix.needs_cross == true
         run: cargo install cross
-
-      - name: Add Linux arm64 target
-        if: matrix.os == 'macos-latest' && matrix.target == 'aarch64-unknown-linux-gnu'
-        run: rustup target add --force-non-host aarch64-unknown-linux-gnu
 
       - name: Build
         run: |
-          if [ "${{ matrix.os }}" == "macos-latest" ] && [ "${{ matrix.target }}" == "aarch64-unknown-linux-gnu" ]; then
+          if [ "${{ matrix.needs_cross }}" == "true" ]; then
             cross build --release --target ${{ matrix.target }}
           else
             cargo build --release --target ${{ matrix.target }}
@@ -57,7 +54,7 @@ jobs:
 
       - name: Build stealth
         run: |
-          if [ "${{ matrix.os }}" == "macos-latest" ] && [ "${{ matrix.target }}" == "aarch64-unknown-linux-gnu" ]; then
+          if [ "${{ matrix.needs_cross }}" == "true" ]; then
             cross build --release --target ${{ matrix.target }} --features stealth
           else
             cargo build --release --target ${{ matrix.target }} --features stealth
